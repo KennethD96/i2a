@@ -111,7 +111,7 @@ def convert_to_txt_1_4(image):
 
 	return output_string
 
-parser = argparse.ArgumentParser(prog='i2a', description='Convert images to 24-bit ANSI escape codes.',)
+parser = argparse.ArgumentParser(prog='i2txt', description='Convert images to 24-bit ANSI escape codes.',)
 parser.add_argument('-f', '--format', default='1', help='Output format can be one of: 1: "1:4" (default), 2: "1:1", 3: "1:1_fg"')
 parser.add_argument('-p', '--printf', action='store_true', help='Make the output copyable for use with e.g. printf.')
 parser.add_argument('-d', '--printfilename', action='store_true', help='Print the filename for each converted image.')
