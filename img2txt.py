@@ -27,7 +27,6 @@ def convert_to_txt_1_1(image, fg=False):
 		last_ansi_code = ''
 
 		for char in line:
-
 			if char[3] != 0:
 				if fg:
 					ansi_code = f'{escape_char}38;2;{char[0]};{char[1]};{char[2]}m'
@@ -70,8 +69,11 @@ def convert_to_txt_1_4(image):
 		char_index = 0
 
 		for char in line[0]:
+			try:
+				char = char + line[1][char_index]
+			except IndexError:
+				char = char + (0, 0, 0, 0)*image.width
 
-			char = char + line[1][char_index]
 			char_index = char_index + 1
 
 			if char[3] != 0 and char[7] != 0:
