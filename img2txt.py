@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import sys
 import argparse
 from PIL import Image
@@ -9,10 +10,15 @@ PIXEL_CHAR_1_4_TOP = '▀'
 PIXEL_CHAR_1_4_LOW = '▄'
 BLANK = ' '
 
-def convert_image(image):
-	return image.convert("RGBA")
+def convert_image(image, format="RGBA"):
+	if image.mode != format:
+		return image.convert(format)
+	else:
+		return image
 
 def convert_to_txt_1_1(image, fg=False):
+	image = convert_image(image)
+
 	src_image = list(image.getdata())
 	lines = []
 
@@ -52,6 +58,8 @@ def convert_to_txt_1_1(image, fg=False):
 	return output_string
 
 def convert_to_txt_1_4(image):
+	image = convert_image(image)
+
 	src_image = list(image.getdata())
 	lines = []
 
@@ -103,10 +111,11 @@ def convert_to_txt_1_4(image):
 
 	return output_string
 
-parser = argparse.ArgumentParser(prog='img2txt', description='Convert images to 24-bit ANSI codes.',)
-parser.add_argument('-s', '--scale', default="1")
-parser.add_argument('-p', '--printf', action='store_true')
-parser.add_argument('filenames', nargs="*")
+parser = argparse.ArgumentParser(prog='i2a', description='Convert images to 24-bit ANSI escape codes.',)
+parser.add_argument('-f', '--format', default='1', help='Output format can be one of: 1: "1:4" (default), 2: "1:1", 3: "1:1_fg"')
+parser.add_argument('-p', '--printf', action='store_true', help='Make the output copyable for use with e.g. printf.')
+parser.add_argument('-d', '--printfilename', action='store_true', help='Print the filename for each converted image.')
+parser.add_argument('filenames', nargs='+', help='Files to convert to ANSI text. (required)')
 
 args = parser.parse_args()
 
@@ -116,17 +125,19 @@ else:
 	escape_char = '\033['
 
 for i in args.filenames:
-	image = Image.open(i)
+	try:
+		from PIL import UnidentifiedImageError
+		if args.printfilename:
+			print(f'{i}:')
 
-	if image.mode != "RGBA":
-		image = convert_image(image)
+		with Image.open(i) as image:
 
-	if args.scale.lower() in ["1", "1:4"]:
-		print(convert_to_txt_1_4(image))
-	elif args.scale.lower() in ["2", "1:1"]:
-		print(convert_to_txt_1_1(image))
-	elif args.scale.lower() in ["3", "1:1_fg"]:
-		print(convert_to_txt_1_1(image, fg=True))
+			if args.format.lower() in ["1", "1:4"]:
+				print(convert_to_txt_1_4(image))
+			elif args.format.lower() in ["2", "1:1"]:
+				print(convert_to_txt_1_1(image))
+			elif args.format.lower() in ["3", "1:1_fg"]:
+				print(convert_to_txt_1_1(image, fg=True))
 
-if not args.filenames:
-	parser.print_help()
+	except UnidentifiedImageError:
+		print(f'ERROR: The image file at "{i}" is not valid.\n')
