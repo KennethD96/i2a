@@ -137,14 +137,14 @@ parser.add_argument('-f', '--format', default='1', help='Output format can be on
 parser.add_argument('-p', '--printf', action='store_true', help='Make the output copyable for use with e.g. printf.')
 parser.add_argument('-d', '--printfilename', action='store_true', help='Print the filename for each converted image.')
 parser.add_argument('-i', '--printinfo', action='store_true', help='Print information about the source image.')
-parser.add_argument('filenames', nargs='+', help='Files to convert to ANSI text. (required)')
+parser.add_argument('filename', nargs='+', help='File to convert to ANSI text. (required)')
 
 args = parser.parse_args()
 
 if args.printf:
 	escape_char = '\\033['
 
-for i in args.filenames:
+for i in args.filename:
 	try:
 		from PIL import UnidentifiedImageError
 		if args.printfilename:
@@ -163,6 +163,8 @@ for i in args.filenames:
 				print(convert_to_txt_1_1(image))
 			elif args.format.lower() in ["3", "1:1_fg"]:
 				print(convert_to_txt_1_1(image, fg=True))
+			else:
+				print(f'ERROR: "Format must be one of: 1: "1:4", 2: "1:1", 3: "1:1_fg". Not "{args.format}".\n')
 
 	except UnidentifiedImageError:
 		print(f'ERROR: "{i}" is not a valid image.\n')
