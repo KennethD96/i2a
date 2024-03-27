@@ -165,6 +165,6 @@ for i in args.filenames:
 				print(convert_to_txt_1_1(image, fg=True))
 
 	except UnidentifiedImageError:
-		print(f'ERROR: The image file at "{i}" is not valid.\n')
+		print(f'ERROR: "{i}" is not a valid image.\n')
 	except FileNotFoundError:
-		print(f'ERROR: The image file at "{i}" does not exist.\n')
+		print(f'ERROR: "{i}" does not exist.\n')
