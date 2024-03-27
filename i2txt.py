@@ -4,7 +4,6 @@ import sys
 import argparse
 from PIL import Image
 
-BLANK = ' '
 escape_char = '\033['
 
 def convert_image(image, mode="RGBA"):
@@ -20,8 +19,8 @@ def convert_to_txt_1_1(image, fg=False):
 	By default it will use spaces and set the background color to the pixel color.
 	If 'fg' is set to True it will instead use the foreground and two '█' characters.
 	"""
-	PIXEL_CHAR_1_1_BG = '  '
 	PIXEL_CHAR_1_1_FG = '██'
+	PIXEL_CHAR_1_1_BG = '  '
 
 	image = convert_image(image)
 
@@ -120,7 +119,7 @@ def convert_to_txt_1_4(image):
 			else:
 				# Reset if the pixel is transparent.
 				ansi_code = f'{escape_char}0m'
-				ansi_char = BLANK
+				ansi_char = ' '
 
 			# Avoid repeating the previous escape code if it's unchanged.
 			if ansi_code == last_ansi_code:
@@ -137,6 +136,7 @@ parser = argparse.ArgumentParser(prog='i2txt', description='Convert images to 24
 parser.add_argument('-f', '--format', default='1', help='Output format can be one of: 1: "1:4" (default), 2: "1:1", 3: "1:1_fg"')
 parser.add_argument('-p', '--printf', action='store_true', help='Make the output copyable for use with e.g. printf.')
 parser.add_argument('-d', '--printfilename', action='store_true', help='Print the filename for each converted image.')
+parser.add_argument('-i', '--printinfo', action='store_true', help='Print information about the source image.')
 parser.add_argument('filenames', nargs='+', help='Files to convert to ANSI text. (required)')
 
 args = parser.parse_args()
@@ -151,12 +151,20 @@ for i in args.filenames:
 			print(f'{i}:')
 
 		with Image.open(i) as image:
-			if args.format.lower() in ["1", "1:4"]:
+			if args.printinfo:
+				print(f'File: {image.filename}')
+				print(f'Resolution: {image.size[0]}x{image.size[1]}')
+				print(f'Format: {image.format}')
+				print(f'Mode: {image.mode}\n')
+
+			if args.format in ["1", "1:4"]:
 				print(convert_to_txt_1_4(image))
-			elif args.format.lower() in ["2", "1:1"]:
+			elif args.format in ["2", "1:1"]:
 				print(convert_to_txt_1_1(image))
 			elif args.format.lower() in ["3", "1:1_fg"]:
 				print(convert_to_txt_1_1(image, fg=True))
 
 	except UnidentifiedImageError:
 		print(f'ERROR: The image file at "{i}" is not valid.\n')
+	except FileNotFoundError:
+		print(f'ERROR: The image file at "{i}" does not exist.\n')
